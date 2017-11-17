@@ -13,5 +13,6 @@ app.get("/", function(req, res) {
 app.use(express.static("public"));
 
 app.listen(80, function() {
+	fs.writeFileSync("test.txt", "listening successful");
 	console.log("chat-analyzer-server listening on port 80");
 });
