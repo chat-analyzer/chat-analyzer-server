@@ -1,2 +1,17 @@
-"use strict";
-console.log("hallo world");
+const fs = require("fs");
+const path = require("path");
+const express = require("express");
+
+
+
+let app = express();
+
+app.get("/", function(req, res) {
+	res.sendFile(path.join(__dirname + "/public/index.html"));
+});
+
+app.use(express.static("public"));
+
+app.listen(80, function() {
+	console.log("chat-analyzer-server listening on port 80");
+});
