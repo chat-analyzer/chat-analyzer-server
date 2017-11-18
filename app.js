@@ -14,6 +14,13 @@ app.get("/", function(req, res) {
 
 
 
+function guidGenerator() {		//from https://stackoverflow.com/a/6860916
+    var S4 = function() {
+       return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+    };
+    return (S4()+S4()+S4()+S4());
+}
+
 function reqBodyDebug(reqBody) {
 	if(reqBody.debug  &&  reqBody.chat == undefined)
 		reqBody.chat = fs.readFileSync(path.join(__dirname, "./public/unit_tests/test.txt"), "utf8");
@@ -60,6 +67,20 @@ actionHandlers.calculateIntelligentValues = async reqBody => {
 	let parsedChat = actionHandlers.parseChat(reqBody, true);
 	let intelligentValues = await customCalculations.calculateIntelligentValues(parsedChat);
 	return JSON.stringify(intelligentValues, null, 4);
+};
+
+actionHandlers.registerChat = reqBody => {
+	let allChats = [];
+	try {
+		allChats = JSON.parse(fs.readFileSync(path.join(__dirname, "/public/chats.json"), "utf8"));
+	}
+	catch(e) {}
+	let chatIds = allChats.map(c => c.id);
+	let newChatId;
+	while(chatIds.indexOf(newChatId = guidGenerator()) != -1) {}
+	allChats.push({ id: newChatId, chat: reqBody.chat });
+	fs.writeFileSync(path.join(__dirname, "/public/chats.json"), JSON.stringify(allChats), "utf8");
+	return "http://chat-analyzer-server.azurewebsites.net/chat.html?id=" + newChatId;
 };
 
 
