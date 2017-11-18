@@ -200,6 +200,9 @@
                 })
                 .then(intelligentVals => {
                     intelligentValues = JSON.parse(intelligentVals);
+                    $("#placeholder-content").css("display", "none");
+                    $(".actual-content").css("display", "flex");
+                    $("#subheading-container").html(`Users: ${staticValues.individualProperty.length}&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;Conversations: ${staticValues.conversationStarts}&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;Messages: ${staticValues.posts}`);
                     initCharts(staticValues, intelligentValues);
                 });
             });
@@ -208,22 +211,28 @@
     <body>
         <div class="container">
             <div class="row">
-                <div class="col-sm-12 heading-container">
+                <div id="heading-container" class="col-md-12">
                     <h1>Chat Analyzer</h1>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-sm-4 diagram-container">
+            <div id="placeholder-content" class="row subheading">
+                <div class="subheading col-md-12">Loading...</div>
+            </div>
+            <div class="row actual-content">
+                <div id="subheading-container" class="subheading col-md-12"></div>
+            </div>
+            <div class="row actual-content">
+                <div class="col-md-4 diagram-container">
                     <h2>Amount of messages</h2>
                     <div class="diagram-canvas-container">
                         <canvas id="amount-messages-chart" class="diagram-canvas">Canvas not supported.</canvas>
                     </div>
                 </div>
-                <div class="col-sm-4 diagram-container">
+                <div class="col-md-4 diagram-container">
                     <h2>Most frequent times</h2>
                     <canvas id="frequency-chart" class="diagram-canvas">Canvas not supported.</canvas>
                 </div>
-                <div class="col-sm-4 diagram-container">
+                <div class="col-md-4 diagram-container">
                     <h2>Sentiments by users</h2>
                     <canvas id="user-sentiments-chart" class="diagram-canvas">Canvas not supported.</canvas>
                 </div>

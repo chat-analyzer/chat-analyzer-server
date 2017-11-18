@@ -11,12 +11,25 @@ body {
 	width: 100vw;
 	height: 100vh;
 	background: radial-gradient(#fff 40%, #ddd);
+	background-attachment: fixed;
+	overflow-x: hidden;
 }
 
 div {
-	&.heading-container {
+	&#heading-container {
 		text-align: center;
-		margin-bottom: 2vh;
+	}
+
+	&.subheading {
+		text-align: center;
+		font-size: 0.9em;
+		font-weight: 300;
+		text-transform: uppercase;
+		margin-bottom: 5vh;
+	}
+
+	&.actual-content {
+		display: none;
 	}
 
 	&.diagram-container {
