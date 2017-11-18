@@ -69,7 +69,7 @@ actionHandlers.calculateIntelligentValues = async reqBody => {
 	return JSON.stringify(intelligentValues, null, 4);
 };
 
-/*actionHandlers.registerChat = reqBody => {
+actionHandlers.registerChat = reqBody => {
 	let allChats = [];
 	try {
 		allChats = JSON.parse(fs.readFileSync(path.join(__dirname, "/public/chats.json"), "utf8"));
@@ -81,7 +81,7 @@ actionHandlers.calculateIntelligentValues = async reqBody => {
 	allChats.push({ id: newChatId, chat: reqBody.chat });
 	fs.writeFileSync(path.join(__dirname, "/public/chats.json"), JSON.stringify(allChats), "utf8");
 	return "http://chat-analyzer-server.azurewebsites.net/chat.html?id=" + newChatId;
-};*/
+};
 
 
 
