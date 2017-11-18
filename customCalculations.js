@@ -39,7 +39,7 @@ exports.calculateStaticValues = function(input) {
     return processed;
 };
 
-console.log(JSON.stringify(processed,null, 4));
+//console.log(JSON.stringify(processed,null, 4));
 
 
 
