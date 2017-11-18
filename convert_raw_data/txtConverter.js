@@ -3,7 +3,7 @@ var path = require('path');
 var fs = require('fs');
 // read profiles and led information
 var inputTxt = fs.readFileSync(path.join(__dirname, '/txt/test.txt'), 'utf8');
-var messagesRaw = inputTxt.split(/\n(?=\d\d\.\d\d\.\d\d, \d\d:\d\d - )/);
+var messagesRaw = inputTxt.split(/\n(?=\d\d\.\d\d\.\d\d, \d\d:\d\d - )/); // split at \n + timestamp
 
 let messagesParsed = messagesRaw.map(m => {
     let idx = m.indexOf(" - ");
@@ -17,7 +17,9 @@ let messagesParsed = messagesRaw.map(m => {
     let [day, month, year] = date.split(".").map(a => parseInt(a));
     let [hour, minute] = time.split(":").map(a => parseInt(a));
     let timestamp = new Date(year+2000, month-1, day, hour, minute, 0, 0);
-     return {timestamp: +timestamp, author: author, msg: msg};
+    return {timestamp: +timestamp, author: author, msg: msg};
 });
 
-console.log(JSON.stringify(messagesParsed, null, 4));
+//console.log(JSON.stringify(messagesParsed, null, 4));
+
+module.exports = messagesParsed;
