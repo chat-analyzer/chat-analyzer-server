@@ -13,23 +13,23 @@ Our Android app disguises as an email app to get the chat logs via the "send cha
 First, we calculate the absolute and relative number of messages and conversations started by each group member and analyze the days and times when each user is most active. Then, we use Azure to analyze the tone of certain groups of messages and thereby calculate sentiment scores for each member and conversation. These are then averaged to get a single 'positivity score' for each group member and the group as a whole.
 All of this data is then visualized beautifully and shown on a web view inside our app...
 
-#Challenges we ran into
+# Challenges we ran into
 
 tba
 
-#Accomplishments that we're proud of
+# Accomplishments that we're proud of
 
 tba
 
-#What we learned
+# What we learned
 
 tba
 
-#What's next for Chat Analyzer
+# What's next for Chat Analyzer
 
 tba
 
-#Built With
+# Built With
 
 tba 
 

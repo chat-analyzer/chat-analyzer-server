@@ -9,11 +9,20 @@ body {
   margin: 0;
   width: 100vw;
   height: 100vh;
-  background: radial-gradient(#fff 40%, #ddd); }
+  background: radial-gradient(#fff 40%, #ddd);
+  background-attachment: fixed;
+  overflow-x: hidden; }
 
-div.heading-container {
+div#heading-container {
+  text-align: center; }
+div.subheading {
   text-align: center;
-  margin-bottom: 2vh; }
+  font-size: 0.9em;
+  font-weight: 300;
+  text-transform: uppercase;
+  margin-bottom: 5vh; }
+div.actual-content {
+  display: none; }
 div.diagram-container {
   padding: 0vh 2vw 5.5vh 2vw; }
   div.diagram-container > h2 {
