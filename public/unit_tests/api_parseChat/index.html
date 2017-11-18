@@ -13,10 +13,10 @@
 		<script type="text/javascript">
 			let rootUrl = "http://chat-analyzer-server.azurewebsites.net";
 			$(document).ready(function() {
-				let testData = $.get(`./test.txt`).then(testData => {
+				let testData = $.get(`../test.txt`).then(testData => {
 					return $.post(`/api`, {
 						action: "parseChat",
-						chats: testData
+						debug: true
 					}, processed => {
 						$("#result").html(processed);
 					});

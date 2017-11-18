@@ -9,14 +9,20 @@ const bodyParser = require("body-parser");
 let app = express();
 
 app.get("/", function(req, res) {
-	res.sendFile(path.join(__dirname + "/public/index.html"));
+	res.sendFile(path.join(__dirname, "/public/index.html"));
 });
 
 
 
+function reqBodyDebug(reqBody) {
+	if(reqBody.debug  &&  reqBody.chat == undefined)
+		reqBody.chat = fs.readFileSync(path.join(__dirname, "./public/unit_tests/test.txt"), "utf8");
+}
+
 let actionHandlers = {
 	parseChat: reqBody => {
-		var messagesRaw = reqBody.chats.split(/\n(?=\d\d\.\d\d\.\d\d, \d\d:\d\d - )/);
+		reqBodyDebug(reqBody);
+		var messagesRaw = reqBody.chat.split(/\n(?=\d\d\.\d\d\.\d\d, \d\d:\d\d - )/);
 		
 		let messagesParsed = messagesRaw.map(m => {
 			if(m == "") return;
@@ -36,7 +42,7 @@ let actionHandlers = {
 			let [day, month, year] = date.split(".").map(a => parseInt(a));
 			let [hour, minute] = time.split(":").map(a => parseInt(a));
 			let timestamp = new Date(year+2000, month-1, day, hour, minute, 0, 0);
-			return { timestamp: +timestamp, author: author, msg: msg };
+			return { timestamp: +timestamp, author: author, text: msg };
 		}).filter(Boolean);
 
 		return JSON.stringify(messagesParsed, null, 4);
