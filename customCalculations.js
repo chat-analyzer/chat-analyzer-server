@@ -1,6 +1,8 @@
 const rp = require("request-promise-native");
 const _ = require("lodash");
 
+var activityTime = require("./activityTime.js");
+
 
 
 const CONVERSATION_START_THRESHOLD_HOURS = 3;
@@ -35,6 +37,27 @@ exports.calculateStaticValues = function(messages) {
         processed.individualProperty[nameIndex].posts++;
         processed.posts++;
     });
+
+    processed.individualProperty.forEach((element, index) => {
+        // userMessages.name = element.individualProperty[index].name;
+        // console.log(JSON.stringify(element));
+        let filteredArray = messages.filter(msgObject => {
+            if (msgObject.author === element.name) {
+                return true;
+            } else {
+                return false;
+            } 
+        });
+        element.msgArray = filteredArray.map(msg => {
+            return {timestamp: msg.timestamp};
+        }); // we only need our timestamp
+        
+        element.msgArray = activityTime.getActivityOverTime(element.msgArray);
+        // console.log(JSON.stringify(element, null, 2));
+        
+        
+    });
+
     return processed;
 };
 

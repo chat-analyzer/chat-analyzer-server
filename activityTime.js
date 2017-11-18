@@ -1,6 +1,6 @@
 messages = require('./convert_raw_data/txtConverter')
 
-function getActivityOverTime(messages) {
+exports.getActivityOverTime = function(messages) {
     var days = []
     var currentDate = new Date(0);
 
@@ -44,4 +44,4 @@ function getActivityOverTime(messages) {
     });
     return days;
 }
-//console.log("\n" + JSON.stringify(days, null, 2))
+// console.log("\n" + JSON.stringify(getActivityOverTime(messages), null, 2));
