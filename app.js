@@ -15,7 +15,7 @@ app.get("/", function(req, res) {
 
 let actionHandler = {
 	processChat: reqBody => {
-		var messagesRaw = inputTxt.split(/\n(?=\d\d\.\d\d\.\d\d, \d\d:\d\d - )/);
+		var messagesRaw = reqBody.chats.split(/\n(?=\d\d\.\d\d\.\d\d, \d\d:\d\d - )/);
 		
 		let messagesParsed = messagesRaw.map(m => {
 			let idx = m.indexOf(" - ");
@@ -32,7 +32,7 @@ let actionHandler = {
 			return { timestamp: +timestamp, author: author, msg: msg };
 		});
 
-		return JSON.stringify(processChat, null, 4);
+		return JSON.stringify(messagesParsed, null, 4);
 	}
 };
 
