@@ -1,0 +1,26 @@
+{
+  "name": "chat-analyzer-server",
+  "version": "0.0.1",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chat-analyzer/chat-analyzer-server.git"
+  },
+  "keywords": [
+    "chat",
+    "analyzer"
+  ],
+  "author": "cool guys",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chat-analyzer/chat-analyzer-server/issues"
+  },
+  "homepage": "https://github.com/chat-analyzer/chat-analyzer-server#readme",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}
