@@ -2,54 +2,94 @@ const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
-//const customCalculations = require("./customCalculations.js");
+const customCalculations = require("./customCalculations.js");
 
 
 
 let app = express();
 
 app.get("/", function(req, res) {
-	res.sendFile(path.join(__dirname + "/public/index.html"));
+	res.sendFile(path.join(__dirname, "/public/index.html"));
 });
 
 
 
-let actionHandlers = {
-	parseChat: reqBody => {
-		var messagesRaw = reqBody.chats.split(/\n(?=\d\d\.\d\d\.\d\d, \d\d:\d\d - )/);
-		
-		let messagesParsed = messagesRaw.map(m => {
-			if(m == "") return;
-			
-			let idx = m.indexOf(" - ");
-			if(idx == -1) return;
-			let msgAll = m.substr(idx + 3);
-			let totalDate = m.substr(0, idx);
-			let msgIdx = msgAll.indexOf(": ");
-			if(msgIdx == -1) return;
-			let author = msgAll.substr(0, msgIdx);
-			let msg = msgAll.substr(msgIdx + 2);
-			
-			if(totalDate == undefined) return;
-			let [date, time] = totalDate.split(", ");
-			if(date == undefined  ||  time == undefined) return;
-			let [day, month, year] = date.split(".").map(a => parseInt(a));
-			let [hour, minute] = time.split(":").map(a => parseInt(a));
-			let timestamp = new Date(year+2000, month-1, day, hour, minute, 0, 0);
-			return { timestamp: +timestamp, author: author, msg: msg };
-		}).filter(Boolean);
+function guidGenerator() {		//from https://stackoverflow.com/a/6860916
+    var S4 = function() {
+       return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+    };
+    return (S4()+S4()+S4()+S4());
+}
 
-		return JSON.stringify(messagesParsed, null, 4);
+function reqBodyDebug(reqBody) {
+	if(reqBody.debug  &&  reqBody.chat == undefined)
+		reqBody.chat = fs.readFileSync(path.join(__dirname, "./public/unit_tests/test.txt"), "utf8");
+}
+
+let actionHandlers = {};
+actionHandlers.parseChat = (reqBody, dontJSONStringify) => {
+	reqBodyDebug(reqBody);
+	var messagesRaw = reqBody.chat.split(/\n(?=\d\d\.\d\d\.\d\d, \d\d:\d\d - )/);
+	
+	let messagesParsed = messagesRaw.map(m => {
+		if(m == "") return;
+		
+		let idx = m.indexOf(" - ");
+		if(idx == -1) return;
+		let msgAll = m.substr(idx + 3);
+		let totalDate = m.substr(0, idx);
+		let msgIdx = msgAll.indexOf(": ");
+		if(msgIdx == -1) return;
+		let author = msgAll.substr(0, msgIdx);
+		let msg = msgAll.substr(msgIdx + 2);
+		
+		if(totalDate == undefined) return;
+		let [date, time] = totalDate.split(", ");
+		if(date == undefined  ||  time == undefined) return;
+		let [day, month, year] = date.split(".").map(a => parseInt(a));
+		let [hour, minute] = time.split(":").map(a => parseInt(a));
+		let timestamp = new Date(year+2000, month-1, day, hour, minute, 0, 0);
+		return { timestamp: +timestamp, author: author, text: msg };
+	}).filter(Boolean);
+
+	if(dontJSONStringify)
+		return messagesParsed;
+	return JSON.stringify(messagesParsed, null, 4);
+};
+
+actionHandlers.calculateStaticValues = reqBody => {
+	let parsedChat = actionHandlers.parseChat(reqBody, true);
+	let staticValues = customCalculations.calculateStaticValues(parsedChat);
+	return JSON.stringify(staticValues, null, 4);
+};
+
+actionHandlers.calculateIntelligentValues = async reqBody => {
+	let parsedChat = actionHandlers.parseChat(reqBody, true);
+	let intelligentValues = await customCalculations.calculateIntelligentValues(parsedChat);
+	return JSON.stringify(intelligentValues, null, 4);
+};
+
+actionHandlers.registerChat = reqBody => {
+	let allChats = [];
+	try {
+		allChats = JSON.parse(fs.readFileSync(path.join(__dirname, "/public/chats.json"), "utf8"));
 	}
+	catch(e) {}
+	let chatIds = allChats.map(c => c.id);
+	let newChatId;
+	while(chatIds.indexOf(newChatId = guidGenerator()) != -1) {}
+	allChats.push({ id: newChatId, chat: reqBody.chat });
+	fs.writeFileSync(path.join(__dirname, "/public/chats.json"), JSON.stringify(allChats), "utf8");
+	return "http://chat-analyzer-server.azurewebsites.net/chat.html?id=" + newChatId;
 };
 
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.post("/api", function(req, res) {
+app.post("/api", async function(req, res) {
 	let resStr;
 	if(actionHandlers[req.body.action] != undefined)
-		resStr = actionHandlers[req.body.action](req.body);
+		resStr = await actionHandlers[req.body.action](req.body);
 	res.send(resStr==undefined ? "" : resStr);
 });
 

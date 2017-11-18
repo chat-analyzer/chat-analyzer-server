@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+        <title>Chat Analyzer</title>
+
+        <!-- stylesheets -->
+        <link rel="stylesheet" href="/lib/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/css/main.css">
+
+        <!-- fonts -->
+        <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:300,400,600,700" rel="stylesheet">
+
+        <!-- scripts -->
+        <script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.5/umd/popper.min.js"></script>
+        <script type="text/javascript" src="/lib/bootstrap/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="/lib/chart/js/chart.min.js"></script>
+        <script type="text/javascript">
+            function initCharts(staticValues, intelligentValues) {
+                let charts = [
+                    {
+                        title: "Amount of messages",
+                        name: "amount-messages",
+                        canvas: getContext($("#amount-messages-chart")),
+                    },
+                    {
+                        title: "Most frequent times",
+                        name: "frequency",
+                        canvas: getContext($("#frequency-chart")),
+                    },
+                    {
+                        title: "Sentiments by users",
+                        name: "user-sentiments",
+                        canvas: getContext($("#user-sentiments-chart")),
+                    }
+                ];
+
+                let labels = staticValues.individualProperty.map(user => user.name);
+                let data = staticValues.individualProperty.map(user => user.posts);
+            }
+
+            $(document).ready(function() {
+                let staticValues, intelligentValues;
+
+                $.post(`/api`, { action: "calculateStaticValues", debug: true })
+				.then(staticVals => {
+                    staticValues = staticVals;
+                    return $.post(`/api`, { action: "calculateIntelligentValues", debug: true });
+                })
+                .then(intelligentVals => {
+                    intelligentValues = intelligentVals;
+                    initCharts(staticValues, intelligentValues);
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 heading-container">
+                    <h1>Chat Analyzer</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4 diagram-container">
+                    <h2>Amount of messages</h2>
+                    <canvas id="amount-messages-chart" class="diagram-canvas">Canvas not supported.</canvas>
+                </div>
+                <div class="col-sm-4 diagram-container">
+                    <h2>Most frequent times</h2>
+                    <canvas id="frequency-chart" class="diagram-canvas">Canvas not supported.</canvas>
+                </div>
+                <div class="col-sm-4 diagram-container">
+                    <h2>Sentiments by users</h2>
+                    <canvas id="user-sentiments-chart" class="diagram-canvas">Canvas not supported.</canvas>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
