@@ -14,7 +14,7 @@ app.get("/", function(req, res) {
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname + "/public")));
+app.use(express.static(path.join(__dirname, "/public")));
 
 app.listen(process.env.PORT, function() {
 	console.log("chat-analyzer-server now listening");
