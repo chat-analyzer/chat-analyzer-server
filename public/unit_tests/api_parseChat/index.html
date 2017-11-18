@@ -5,6 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
+		<title>API: parseChat | Chat Analyzer Unit Tests</title>
+
 		<link rel="stylesheet" href="/css/main.css">
 		<script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
 
@@ -13,7 +15,7 @@
 			$(document).ready(function() {
 				let testData = $.get(`./test.txt`).then(testData => {
 					return $.post(`/api`, {
-						action: "processChat",
+						action: "parseChat",
 						chats: testData
 					}, processed => {
 						$("#result").html(processed);
@@ -21,11 +23,9 @@
 				});
 			});
 		</script>
-
-        <title>API: processChat | Chat Analyzer Unit Tests</title>
     </head>
     <body>
-		<h1>API: processChat</h1>
+		<h1>API: parseChat</h1>
 		<pre id="result"></pre>
     </body>
 </html>

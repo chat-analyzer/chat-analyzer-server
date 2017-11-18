@@ -15,7 +15,7 @@ app.get("/", function(req, res) {
 
 
 let actionHandlers = {
-	processChat: reqBody => {
+	parseChat: reqBody => {
 		var messagesRaw = reqBody.chats.split(/\n(?=\d\d\.\d\d\.\d\d, \d\d:\d\d - )/);
 		
 		let messagesParsed = messagesRaw.map(m => {
@@ -40,7 +40,6 @@ let actionHandlers = {
 		}).filter(Boolean);
 
 		return JSON.stringify(messagesParsed, null, 4);
-		//return JSON.stringify(customCalculations.process(messagesParsed), null, 4);
 	}
 };
 
