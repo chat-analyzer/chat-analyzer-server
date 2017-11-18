@@ -5,58 +5,71 @@ var activityTime = require("./activityTime.js");
 
 
 
-const CONVERSATION_START_THRESHOLD_HOURS = 3;
+const CONVERSATION_START_THRESHOLD_HOURS = 3; 
 
 exports.calculateStaticValues = function(messages) {
     // this will be our final object
     let processed = {
         posts: 0,
         conversationStarts: 0,
-        individualProperty:  []
+        users:  []
     };
-    let names = [];
 
+ 
+
+    let startOfConversationIndexArray = [];
+    let isFirstElement = true; // the first element in the chat is always a start of conversation
     messages.forEach((msg, index) => {
-        if(msg.author == "")
+        if(msg.author == "")  {
             return;
+        }
+
         if(names.indexOf(msg.author) == -1) {
             names.push(msg.author);
-            processed.individualProperty[names.length-1] = {
+            processed.users[names.length-1] = {
                 name: msg.author,
                 posts: 0,
-                conversationStarts: 0,
+                conversationStarts: 0
             };
         }
         let nameIndex =   names.indexOf(msg.author);  
-        // get conversation starts
-        if(index > 0 && ((messages[index-1].timestamp + 1000 * 60 * 60 * CONVERSATION_START_THRESHOLD_HOURS)  <= msg.timestamp)) {
-            processed.individualProperty[nameIndex].conversationStarts++;
+        let personResponseObject = processed.users[nameIndex].responseObject; // we'll use this object a lot 
+        // if the new message is more than CONVERSATION_START_THRESHOLD_HOURS ahead of the old one
+        // we'll define this message as a start of conversation
+        if(isFirstElement === true || (messages[index-1].timestamp + 1000 * 60 * 60 * CONVERSATION_START_THRESHOLD_HOURS)  <= msg.timestamp) {
+            processed.users[nameIndex].conversationStarts++; // conversationStart per person
+           
+            startOfConversationIndexArray = msg.timestamp; // we need the timestamp of the conversions in another function
+           
             processed.conversationStarts++;
-        }
+        }         
 
-        processed.individualProperty[nameIndex].posts++;
+        processed.users[nameIndex].posts++;
         processed.posts++;
     });
 
-    processed.individualProperty.forEach((element, index) => {
-        // userMessages.name = element.individualProperty[index].name;
-        // console.log(JSON.stringify(element));
-        let filteredArray = messages.filter(msgObject => {
-            if (msgObject.author === element.name) {
-                return true;
-            } else {
-                return false;
-            } 
-        });
-        element.msgArray = filteredArray.map(msg => {
-            return {timestamp: msg.timestamp};
-        }); // we only need our timestamp
+    //pseudo call
+    getResponseTimeDataFromMarvin(processed.users, startOfConversationIndexArray);
+    
+    // prorocessed.individualProperty.forEach((element, index) => {
+    //     // userMessages.name = element.individualProperty[index].name;
+    //     // console.log(JSON.stringify(element));
+    //     let filteredArray = messages.filter(msgObject => {
+    //         if (msgObject.author === element.name) {
+    //             return true;
+    //         } else {
+    //             return false;
+    //         } 
+    //     });
+    //     element.msgArray = filteredArray.map(msg => {
+    //         return {timestamp: msg.timestamp};
+    //     }); // we only need our timestamp
         
-        element.msgArray = activityTime.getActivityOverTime(element.msgArray);
-        // console.log(JSON.stringify(element, null, 2));
+    //     element.msgArray = activityTime.getActivityOverTime(element.msgArray);
+    //     // console.log(JSON.stringify(element, null, 2));
         
         
-    });
+    // });
 
     return processed;
 };
