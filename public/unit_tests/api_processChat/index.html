@@ -12,7 +12,7 @@
 			$(document).ready(async function() {
 				let testData = await $.get("/unit_tests/api_processChat/test.txt");
 				let processed = await $.post("/api", {
-					action: "processChats",
+					action: "processChat",
 					chats: testData
 				});
 				$("#result").html(processed);
