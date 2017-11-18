@@ -9,13 +9,16 @@
 		<script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
 
 		<script type="text/javascript">
-			$(document).ready(async function() {
-				let testData = await $.get("/unit_tests/api_processChat/test.txt");
-				let processed = await $.post("/api", {
-					action: "processChat",
-					chats: testData
+			let rootUrl = "http://chat-analyzer-server.azurewebsites.net";
+			$(document).ready(function() {
+				let testData = $.get(`./test.txt`).then(testData => {
+					return $.post(`/api`, {
+						action: "processChat",
+						chats: testData
+					}, processed => {
+						$("#result").html(processed);
+					});
 				});
-				$("#result").html(processed);
 			});
 		</script>
 

@@ -16,29 +16,28 @@ app.get("/", function(req, res) {
 
 let actionHandlers = {
 	processChat: reqBody => {
-		return reqBody.chats;
 		var messagesRaw = reqBody.chats.split(/\n(?=\d\d\.\d\d\.\d\d, \d\d:\d\d - )/);
 		
 		let messagesParsed = messagesRaw.map(m => {
-			if(m == "") return "1";
+			if(m == "") return;
 			
 			let idx = m.indexOf(" - ");
-			if(idx == -1) return "2";
+			if(idx == -1) return;
 			let msgAll = m.substr(idx + 3);
 			let totalDate = m.substr(0, idx);
 			let msgIdx = msgAll.indexOf(": ");
-			if(msgIdx == -1) return "3";
+			if(msgIdx == -1) return;
 			let author = msgAll.substr(0, msgIdx);
 			let msg = msgAll.substr(msgIdx + 2);
 			
-			if(totalDate == undefined) return "4";
+			if(totalDate == undefined) return;
 			let [date, time] = totalDate.split(", ");
-			if(date == undefined  ||  time == undefined) return "5";
+			if(date == undefined  ||  time == undefined) return;
 			let [day, month, year] = date.split(".").map(a => parseInt(a));
 			let [hour, minute] = time.split(":").map(a => parseInt(a));
 			let timestamp = new Date(year+2000, month-1, day, hour, minute, 0, 0);
 			return { timestamp: +timestamp, author: author, msg: msg };
-		});
+		}).filter(Boolean);
 
 		return JSON.stringify(messagesParsed, null, 4);
 		//return JSON.stringify(customCalculations.process(messagesParsed), null, 4);
@@ -57,6 +56,6 @@ app.post("/api", function(req, res) {
 
 app.use(express.static(path.join(__dirname + "/public")));
 
-app.listen(process.env.PORT, function() {
+app.listen(process.env.PORT || 8080, function() {
 	console.log("chat-analyzer-server now listening");
 });
