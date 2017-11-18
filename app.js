@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
+const customCalculations = require("./customCalculations.js");
 
 
 
@@ -13,7 +14,7 @@ app.get("/", function(req, res) {
 
 
 
-let actionHandler = {
+let actionHandlers = {
 	processChat: reqBody => {
 		var messagesRaw = reqBody.chats.split(/\n(?=\d\d\.\d\d\.\d\d, \d\d:\d\d - )/);
 		
@@ -32,14 +33,14 @@ let actionHandler = {
 			return { timestamp: +timestamp, author: author, msg: msg };
 		});
 
-		return JSON.stringify(messagesParsed, null, 4);
+		return JSON.stringify(customCalculations.process(messagesParsed), null, 4);
 	}
 };
 
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.get("/api", function(req, res) {
+app.post("/api", function(req, res) {
 	let resStr;
 	if(actionHandlers[req.body.action] != undefined)
 		resStr = actionHandlers[req.body.action](req.body);
