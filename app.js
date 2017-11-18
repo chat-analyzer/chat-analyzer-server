@@ -63,7 +63,7 @@ actionHandlers.calculateStaticValues = reqBody => {
 	return JSON.stringify(staticValues, null, 4);
 };
 
-actionHandlers.calculateIntelligentValues = async reqBody => {
+actionHandlers.calculateIntelligentValues = async (reqBody) => {
 	let parsedChat = actionHandlers.parseChat(reqBody, true);
 	let intelligentValues = await customCalculations.calculateIntelligentValues(parsedChat);
 	return JSON.stringify(intelligentValues, null, 4);
@@ -95,6 +95,6 @@ app.post("/api", async function(req, res) {
 
 app.use(express.static(path.join(__dirname + "/public")));
 
-app.listen(process.env.PORT, function() {
+app.listen(process.env.PORT || 8080, function() {
 	console.log("chat-analyzer-server now listening");
 });
