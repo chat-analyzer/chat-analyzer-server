@@ -20,7 +20,7 @@ function reqBodyDebug(reqBody) {
 }
 
 let actionHandlers = {};
-actionHandlers.parseChat = reqBody => {
+actionHandlers.parseChat = (reqBody, dontJSONStringify) => {
 	reqBodyDebug(reqBody);
 	var messagesRaw = reqBody.chat.split(/\n(?=\d\d\.\d\d\.\d\d, \d\d:\d\d - )/);
 	
@@ -45,22 +45,30 @@ actionHandlers.parseChat = reqBody => {
 		return { timestamp: +timestamp, author: author, text: msg };
 	}).filter(Boolean);
 
+	if(dontJSONStringify)
+		return messagesParsed;
 	return JSON.stringify(messagesParsed, null, 4);
 };
 
 actionHandlers.calculateStaticValues = reqBody => {
-	let parsedChat = JSON.parse(actionHandlers.parseChat(reqBody));
+	let parsedChat = actionHandlers.parseChat(reqBody, true);
 	let staticValues = customCalculations.calculateStaticValues(parsedChat);
 	return JSON.stringify(staticValues, null, 4);
+};
+
+actionHandlers.calculateIntelligentValues = async reqBody => {
+	let parsedChat = actionHandlers.parseChat(reqBody, true);
+	let intelligentValues = await customCalculations.calculateIntelligentValues(parsedChat);
+	return JSON.stringify(intelligentValues, null, 4);
 };
 
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.post("/api", function(req, res) {
+app.post("/api", async function(req, res) {
 	let resStr;
 	if(actionHandlers[req.body.action] != undefined)
-		resStr = actionHandlers[req.body.action](req.body);
+		resStr = await actionHandlers[req.body.action](req.body);
 	res.send(resStr==undefined ? "" : resStr);
 });
 
