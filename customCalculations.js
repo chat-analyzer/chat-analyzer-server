@@ -38,7 +38,7 @@ exports.calculateStaticValues = function(messages) {
         processed.posts++;
     });
 
-    processed.individualProperty.forEach((element, index) => {
+    /*processed.individualProperty.forEach((element, index) => {
         // userMessages.name = element.individualProperty[index].name;
         // console.log(JSON.stringify(element));
         let filteredArray = messages.filter(msgObject => {
@@ -56,7 +56,7 @@ exports.calculateStaticValues = function(messages) {
         // console.log(JSON.stringify(element, null, 2));
         
         
-    });
+    });*/
 
     return processed;
 };
