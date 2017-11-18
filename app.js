@@ -95,6 +95,6 @@ app.post("/api", async function(req, res) {
 
 app.use(express.static(path.join(__dirname + "/public")));
 
-app.listen(process.env.PORT || 8080, function() {
+app.listen(process.env.PORT, function() {
 	console.log("chat-analyzer-server now listening");
 });
