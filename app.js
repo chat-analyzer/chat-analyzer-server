@@ -12,7 +12,7 @@ app.get("/", function(req, res) {
 
 app.use(express.static(path.join(__dirname + "/public")));
 
-app.listen(80, function() {
+app.listen(process.env.PORT || 80, function() {
 	fs.writeFileSync("test.txt", "listening successful");
 	console.log("chat-analyzer-server listening on port 80");
 });
