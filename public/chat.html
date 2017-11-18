@@ -20,27 +20,153 @@
         <script type="text/javascript" src="/lib/bootstrap/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="/lib/chart/js/chart.min.js"></script>
         <script type="text/javascript">
+            function updateCanvasSize(canvas, beSquare) {
+                console.log("hey");
+				canvas.attr("width", canvas.parent().width());
+				canvas.attr("height", beSquare ? canvas.attr("width") : canvas.parent().height());
+			}
+			
+			function getContext(canvas, beSquare) {
+				updateCanvasSize(canvas, beSquare);
+				["width", "height"].forEach(a => canvas.css(a, canvas.attr(a)));
+				return { canvas: canvas, ctx: canvas[0].getContext("2d") };
+            }
+            
+            function shuffleArray(a) {                              //from https://stackoverflow.com/a/6274381
+                for (let i = a.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [a[i], a[j]] = [a[j], a[i]];
+                }
+            }
+
+            function copyArray(a) {
+                return JSON.parse(JSON.stringify(a));
+            }
+            
             function initCharts(staticValues, intelligentValues) {
                 let charts = [
                     {
                         title: "Amount of messages",
                         name: "amount-messages",
-                        canvas: getContext($("#amount-messages-chart")),
+                        canvas: getContext($("#amount-messages-chart"), true),
                     },
                     {
                         title: "Most frequent times",
                         name: "frequency",
-                        canvas: getContext($("#frequency-chart")),
+                        canvas: getContext($("#frequency-chart"), true),
                     },
                     {
                         title: "Sentiments by users",
                         name: "user-sentiments",
-                        canvas: getContext($("#user-sentiments-chart")),
+                        canvas: getContext($("#user-sentiments-chart"), true),
                     }
                 ];
+                let chartBackgroundColors = [
+                    "rgba(255, 38, 38, 0.2)",
+                    "rgba(232, 34, 130, 0.2)",
+                    "rgba(255, 50, 252, 0.2)",
+                    "rgba(215, 255, 109, 0.2)",
+                    "rgba(37, 126, 204, 0.2)",
+                    "rgba(204, 44, 37, 0.2)",
+                    "rgba(104, 130, 153, 0.2)",
+                    "rgba(255, 238, 158, 0.2)"
+                ];
 
-                let labels = staticValues.individualProperty.map(user => user.name);
-                let data = staticValues.individualProperty.map(user => user.posts);
+                
+                let chartData, chartLabels;
+                chartData = staticValues.individualProperty.map(user => user.posts);
+                chartLabels = staticValues.individualProperty.map((user, idx) => `${user.name} (${Math.round(chartData[idx]/staticValues.posts*1000)/10} %)`);
+                shuffleArray(chartBackgroundColors);
+                charts[0].chart = new Chart(charts[0].canvas.ctx,
+				{
+					type: "doughnut",
+					data: {
+						datasets: [{
+							data: chartData,
+							backgroundColor: copyArray(chartBackgroundColors)
+						}],
+						labels: chartLabels
+					},
+					options: {
+						responsive: true,
+						tooltips: {
+							bodyFontSize: 10
+						},
+						legend: {
+							display: true,
+							position: "bottom"
+						}
+					}
+				});
+                charts[0].chart.update();
+
+                chartData = [1, 2, 3, 2, 1, 3, 5];
+                chartLabels = [0, 1, 2, 3, 4, 5, 6]
+                shuffleArray(chartBackgroundColors);
+                charts[1].chart = new Chart(charts[1].canvas.ctx,
+				{
+					type: "bar",
+					data: {
+						datasets: [{
+							data: chartData,
+						}],
+						labels: chartLabels
+					},
+					options: {
+						responsive: true,
+						tooltips: {
+							bodyFontSize: 10
+						},
+                        legend: { display: false },
+                        scales: {
+                            xAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: "Time"
+                                }
+                            }],
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true,
+                                    callback: val => { if(val%1==0) return val; }
+                                }
+                            }]
+                        }
+					}
+                });
+                charts[1].chart.update();
+
+                let chartTemp = intelligentValues.map(v => ({ user: v.user, average: v.average })).sort((x, y) => ((x.average < y.average) ? 1 : ((x.average > y.average) ? -1 : 0)));
+                chartData = chartTemp.map(v => Math.round(v.average*1000)/100);
+                chartLabels = chartTemp.map(v => v.user);
+                shuffleArray(chartBackgroundColors);
+                charts[2].chart = new Chart(charts[2].canvas.ctx,
+				{
+					type: "horizontalBar",
+					data: {
+						datasets: [{
+							data: chartData,
+							backgroundColor: copyArray(chartBackgroundColors)
+						}],
+						labels: chartLabels
+					},
+					options: {
+						responsive: true,
+						tooltips: {
+							bodyFontSize: 10
+						},
+                        legend: { display: false },
+                        scales: {
+                            xAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: "← very negative       neutral       very positive →"
+                                }
+                            }]
+                        }
+					}
+                });
+                charts[2].chart.update();
             }
 
             $(document).ready(function() {
@@ -48,11 +174,11 @@
 
                 $.post(`/api`, { action: "calculateStaticValues", debug: true })
 				.then(staticVals => {
-                    staticValues = staticVals;
+                    staticValues = JSON.parse(staticVals);
                     return $.post(`/api`, { action: "calculateIntelligentValues", debug: true });
                 })
                 .then(intelligentVals => {
-                    intelligentValues = intelligentVals;
+                    intelligentValues = JSON.parse(intelligentVals);
                     initCharts(staticValues, intelligentValues);
                 });
             });
@@ -68,7 +194,9 @@
             <div class="row">
                 <div class="col-sm-4 diagram-container">
                     <h2>Amount of messages</h2>
-                    <canvas id="amount-messages-chart" class="diagram-canvas">Canvas not supported.</canvas>
+                    <div class="diagram-canvas-container">
+                        <canvas id="amount-messages-chart" class="diagram-canvas">Canvas not supported.</canvas>
+                    </div>
                 </div>
                 <div class="col-sm-4 diagram-container">
                     <h2>Most frequent times</h2>
