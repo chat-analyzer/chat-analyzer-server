@@ -21,7 +21,6 @@
         <script type="text/javascript" src="/lib/chart/js/chart.min.js"></script>
         <script type="text/javascript">
             function updateCanvasSize(canvas, beSquare) {
-                console.log("hey");
 				canvas.attr("width", canvas.parent().width());
 				canvas.attr("height", beSquare ? canvas.attr("width") : canvas.parent().height());
 			}
@@ -56,20 +55,25 @@
                         canvas: getContext($("#frequency-chart"), true),
                     },
                     {
-                        title: "Sentiments by users",
+                        title: "Happiest users",
                         name: "user-sentiments",
                         canvas: getContext($("#user-sentiments-chart"), true),
+                    },
+                    {
+                        title: "Happiest weekdays",
+                        name: "weekday-sentiments",
+                        canvas: getContext($("#weekday-sentiments-chart"), true),
                     }
                 ];
                 let chartBackgroundColors = [
-                    "rgba(255, 38, 38, 0.2)",
-                    "rgba(232, 34, 130, 0.2)",
-                    "rgba(255, 50, 252, 0.2)",
-                    "rgba(215, 255, 109, 0.2)",
-                    "rgba(37, 126, 204, 0.2)",
-                    "rgba(204, 44, 37, 0.2)",
-                    "rgba(104, 130, 153, 0.2)",
-                    "rgba(255, 238, 158, 0.2)"
+                    "rgba(255,  38,  38, 0.4)",
+                    "rgba(232,  34, 130, 0.4)",
+                    "rgba(255,  50, 252, 0.4)",
+                    "rgba(215, 255, 109, 0.4)",
+                    "rgba( 37, 126, 204, 0.4)",
+                    "rgba(204,  44,  37, 0.4)",
+                    "rgba(104, 130, 153, 0.4)",
+                    "rgba(255, 238, 158, 0.4)"
                 ];
 
                 
@@ -109,7 +113,6 @@
                         });
                     });
                 });
-                shuffleArray(chartBackgroundColors);
                 charts[1].chart = new Chart(charts[1].canvas.ctx,
 				{
 					type: "line",
@@ -131,7 +134,7 @@
                         tooltips: {
                             bodyFontSize: 10,
                             callbacks: {
-                                title: tooltipItem => `${tooltipItem} h`
+                                title: tooltipItem => `${tooltipItem.xLabel} h`
                             }
                         },
                         scales: {
@@ -181,13 +184,66 @@
                                     labelString: "← negative   neutral   positive →"
                                 },
                                 ticks: {
-                                    display: false
+                                    display: false,
+                                    beginAtZero: true
                                 }
                             }]
                         }
 					}
                 });
                 charts[2].chart.update();
+
+                chartLabels = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+                chartData = chartLabels.map(() => ({
+                    sum: 0,
+                    num: 0
+                }));
+                intelligentValues.forEach(user => {
+                    user.conversations.forEach(conv => {
+                        let d = chartData[new Date(conv.conversationStart).getDay()];
+                        d.sum += conv.score;
+                        d.num++;
+                    });
+                });
+                chartData = chartData.map(weekday => weekday.num==0 ? 0 : weekday.sum/weekday.num);
+                chartData.push(chartData.shift());      //because 0=Sunday
+                charts[3].chart = new Chart(charts[3].canvas.ctx,
+				{
+					type: "line",
+					data: {
+						datasets: [{
+                            data: chartData,
+                            backgroundColor: new Array(chartData.length).fill("rgba(104, 130, 153, 0.2)")
+						}],
+						labels: chartLabels
+					},
+					options: {
+						responsive: true,
+						elements: {
+                            point: {
+                                radius: 0
+                            }
+                        },
+                        legend: { display: false },
+                        tooltips: {
+                            bodyFontSize: 10
+                        },
+                        scales: {
+                            xAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: "Weekday"
+                                }
+                            }],
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }]
+                        }
+					}
+                });
+                charts[3].chart.update();
             }
 
             $(document).ready(function() {
@@ -230,11 +286,21 @@
                 </div>
                 <div class="col-md-4 diagram-container">
                     <h2>Most frequent times</h2>
-                    <canvas id="frequency-chart" class="diagram-canvas">Canvas not supported.</canvas>
+                    <div class="diagram-canvas-container">
+                        <canvas id="frequency-chart" class="diagram-canvas">Canvas not supported.</canvas>
+                    </div>
                 </div>
                 <div class="col-md-4 diagram-container">
-                    <h2>Sentiments by users</h2>
-                    <canvas id="user-sentiments-chart" class="diagram-canvas">Canvas not supported.</canvas>
+                    <h2>Happiest users</h2>
+                    <div class="diagram-canvas-container">
+                        <canvas id="user-sentiments-chart" class="diagram-canvas">Canvas not supported.</canvas>
+                    </div>
+                </div>
+                <div class="col-md-4 diagram-container">
+                    <h2>Happiest weekdays</h2>
+                    <div class="diagram-canvas-container">
+                        <canvas id="weekday-sentiments-chart" class="diagram-canvas">Canvas not supported.</canvas>
+                    </div>
                 </div>
             </div>
         </div>
