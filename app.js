@@ -20,20 +20,20 @@ let actionHandlers = {
 		var messagesRaw = reqBody.chats.split(/\n(?=\d\d\.\d\d\.\d\d, \d\d:\d\d - )/);
 		
 		let messagesParsed = messagesRaw.map(m => {
-			if(m == "") return;
+			if(m == "") return "1";
 			
 			let idx = m.indexOf(" - ");
-			if(idx == -1) return;
+			if(idx == -1) return "2";
 			let msgAll = m.substr(idx + 3);
 			let totalDate = m.substr(0, idx);
 			let msgIdx = msgAll.indexOf(": ");
-			if(msgIdx == -1) return;
+			if(msgIdx == -1) return "3";
 			let author = msgAll.substr(0, msgIdx);
 			let msg = msgAll.substr(msgIdx + 2);
 			
-			if(totalDate == undefined) return;
+			if(totalDate == undefined) return "4";
 			let [date, time] = totalDate.split(", ");
-			if(date == undefined  ||  time == undefined) return;
+			if(date == undefined  ||  time == undefined) return "5";
 			let [day, month, year] = date.split(".").map(a => parseInt(a));
 			let [hour, minute] = time.split(":").map(a => parseInt(a));
 			let timestamp = new Date(year+2000, month-1, day, hour, minute, 0, 0);
