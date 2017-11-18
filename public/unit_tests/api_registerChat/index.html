@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-		<title>API: parseChat | Chat Analyzer Unit Tests</title>
+		<title>API: registerChat | Chat Analyzer Unit Tests</title>
 
 		<link rel="stylesheet" href="/css/basic-main.css">
 		<script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
@@ -13,15 +13,23 @@
 		<script type="text/javascript">
 			let rootUrl = "http://chat-analyzer-server.azurewebsites.net";
 			$(document).ready(function() {
-				$.post(`/api`, { action: "parseChat", debug: true })
-					.then(processed => {
-						$("#result").html(processed);
-					});
+				$("#inputform").submit(e => {
+					$.post(`/api`, { action: "registerChat", chat: $("#inputtext").val() })
+						.then(processed => {
+							$("#result").html(processed);
+						});
+					$("#inputtext").val("");
+					e.preventDefault();
+				});
 			});
 		</script>
     </head>
     <body>
-		<h1>API: parseChat</h1>
+		<h1>API: registerChat</h1>
+		<form id="inputform">
+			Chat data: <input type="text" id="inputtext">
+			<input type="submit">
+		</form>
 		<pre id="result"></pre>
     </body>
 </html>
