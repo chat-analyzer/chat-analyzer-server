@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
-const customCalculations = require("./customCalculations.js");
+//const customCalculations = require("./customCalculations.js");
 
 
 
@@ -33,7 +33,8 @@ let actionHandlers = {
 			return { timestamp: +timestamp, author: author, msg: msg };
 		});
 
-		return JSON.stringify(customCalculations.process(messagesParsed), null, 4);
+		return JSON.stringify(messagesParsed, null, 4);
+		//return JSON.stringify(customCalculations.process(messagesParsed), null, 4);
 	}
 };
 

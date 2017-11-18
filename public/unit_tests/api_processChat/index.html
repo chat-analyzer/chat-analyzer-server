@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+		<link rel="stylesheet" href="/css/main.css">
+		<script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
+
+		<script type="text/javascript">
+			$(document).ready(async function() {
+				let testData = await $.get("/unit_tests/api_processChat/test.txt");
+				let processed = await $.post("/api", {
+					action: "processChats",
+					chats: testData
+				});
+				$("#result").html(processed);
+			});
+		</script>
+
+        <title>API: processChat | Chat Analyzer Unit Tests</title>
+    </head>
+    <body>
+		<h1>API: processChat</h1>
+		<pre id="result"></pre>
+    </body>
+</html>
