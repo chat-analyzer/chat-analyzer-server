@@ -98,7 +98,7 @@ actionHandlers.registerChat = reqBody => {
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.post("/api", async function(req, res) {
+app.post("/api", function(req, res) {
 	if(actionHandlers[req.body.action] != undefined)
 		actionHandlers[req.body.action](req.body).then(resStr => res.send(resStr==undefined ? "" : resStr));
 });
