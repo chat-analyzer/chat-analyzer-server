@@ -109,7 +109,11 @@ app.post("/api", function(req, res) {
 		actionHandlers[req.body.action](req.body).then(resStr => res.send(resStr==undefined ? "" : resStr));
 });
 app.post("/registerChat", upload.single("chat"), function(req, res) {
-	console.log("data received");
+	let reqFile = path.join(__dirname, req.file.path);
+	actionHandlers.registerChat({ chat: fs.readFileSync(reqFile, "utf8") }).then(resStr => {
+		res.send(resStr);
+		fs.unlinkSync(reqFile);
+	});
 });
 
 app.use(express.static(path.join(__dirname + "/public")));
