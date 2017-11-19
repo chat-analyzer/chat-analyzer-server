@@ -78,8 +78,8 @@
 
                 
                 let chartData, chartLabels;
-                chartData = staticValues.individualProperty.map(user => user.posts);
-                chartLabels = staticValues.individualProperty.map((user, idx) => `${user.name} (${Math.round(chartData[idx]/staticValues.posts*1000)/10} %)`);
+                chartData = staticValues.users.map(user => user.posts);
+                chartLabels = staticValues.users.map((user, idx) => `${user.name} (${Math.round(chartData[idx]/staticValues.posts*1000)/10} %)`);
                 shuffleArray(chartBackgroundColors);
                 charts[0].chart = new Chart(charts[0].canvas.ctx,
 				{
@@ -106,7 +106,7 @@
 
                 chartData = new Array(24).fill(0);
                 chartLabels = new Array(24).fill(0).map((a, i) => i);
-                staticValues.individualProperty.forEach(user => {
+                staticValues.users.forEach(user => {
                     user.msgArray.forEach(dayOfMsgs => {
                         dayOfMsgs.hours.forEach(msgHour => {
                             chartData[msgHour.hourAsInt]++;
@@ -246,7 +246,7 @@
                 charts[3].chart.update();
             }
 
-            function getQueryVariable(variable) {
+            function getQueryVariable(variable) {       //from https://stackoverflow.com/a/827378
                 let query = window.location.search.substring(1);
                 let vars = query.split("&");
                 for(let i = 0; i < vars.length; i++) {
@@ -272,7 +272,7 @@
                     intelligentValues = JSON.parse(intelligentVals);
                     $("#placeholder-content").css("display", "none");
                     $(".actual-content").css("display", "flex");
-                    $("#subheading-container").html(`Users: ${staticValues.individualProperty.length}&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;Conversations: ${staticValues.conversationStarts}&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;Messages: ${staticValues.posts}`);
+                    $("#subheading-container").html(`Users: ${staticValues.users.length}&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;Conversations: ${staticValues.conversationStarts}&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;Messages: ${staticValues.posts}`);
                     initCharts(staticValues, intelligentValues);
                 });
             });
