@@ -9,7 +9,7 @@ const responseTimes = require('./responseTime.js')
 const CONVERSATION_START_THRESHOLD_HOURS = 3;
 exports.CONVERSATION_START_THRESHOLD_HOURS = CONVERSATION_START_THRESHOLD_HOURS;
 
-function getResponseTimes(users) {
+function getResponseTimes(messages, users) {
     var convStartIndices = [0];
 
     messages.forEach( (msg, i) => {
@@ -141,7 +141,8 @@ exports.calculateStaticValues = function(messages) {
             // console.log(JSON.stringify(element, null, 2));
         });
 
-        let responseTimes = getResponseTimes(processed.users);
+        //console.log(processed.users);
+        let responseTimes = getResponseTimes(messages, processed.users);
         responseTimes.forEach(currRespTimes => {
             processed.users.find(iProp => iProp.name == currRespTimes.name).responseInfo = {
                 responses: currRespTimes.responses,
