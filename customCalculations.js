@@ -208,16 +208,24 @@ exports.calculateIntelligentValues = function(messages) {
         //send documents in chunks to server
         let allSentiments = [];
         let promises = [];
-        for(let chunk of _.chunk(allDocuments, 100)) {
+        /*let currChunk = [], currChunkLen = 0;
+        for(let i = 0; i < allDocuments.length; i++) {
+            currChunk.push(allDocuments[i]);
+            if(i == allDocuments.length - 1  ||  currChunkLen > 520000) {
+                
+            }
+        }*/
+        let allChunks = _.chunk(allDocuments, 300);
+        allChunks.forEach((chunk, index) => {
             promises.push(rp.post({
                 url: "https://westcentralus.api.cognitive.microsoft.com/text/analytics/v2.0/sentiment",
-                json: { documents: allDocuments },
+                json: { documents: chunk },
                 headers: {
                     "Content-Type": "application/json",
                     "Ocp-Apim-Subscription-Key": "840286916667468a900a9d9907cd6cd1"
                 }
-            }));
-        }
+            }).then(sentimentChunk => new Promise((resolve, reject) => { /*console.log("finished chunk " + index);*/ resolve(sentimentChunk); })));
+        });
         Promise.all(promises).then(allSentimentsChunks =>
             allSentimentsChunks.forEach(sentiments => allSentiments = allSentiments.concat(sentiments.documents.map(doc => ({ id: doc.id.split(","), score: doc.score }))))
         ).then(() => {
