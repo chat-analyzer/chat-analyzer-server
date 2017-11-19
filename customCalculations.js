@@ -6,6 +6,7 @@ var activityTime = require("./activityTime.js");
 
 
 const CONVERSATION_START_THRESHOLD_HOURS = 3; 
+exports.CONVERSATION_START_THRESHOLD_HOURS = CONVERSATION_START_THRESHOLD_HOURS;
 
 exports.calculateStaticValues = function(messages) {
     return new Promise((resolve, reject) => {
@@ -41,17 +42,19 @@ exports.calculateStaticValues = function(messages) {
         if(isFirstElement === true || (messages[index-1].timestamp + 1000 * 60 * 60 * CONVERSATION_START_THRESHOLD_HOURS)  <= msg.timestamp) {
             processed.users[nameIndex].conversationStarts++; // conversationStart per person
            
-            startOfConversationIndexArray = msg.timestamp; // we need the timestamp of the conversions in another function
+            startOfConversationIndexArray.push(index); // we need the timestamp of the conversions in another function
            
             processed.conversationStarts++;
+            isFirstElement = false;
         }         
 
         processed.users[nameIndex].posts++;
         processed.posts++;
     });
 
+    console.log(JSON.stringify(startOfConversationIndexArray));
     //pseudo call
-    getResponseTimeDataFromMarvin(processed.users, startOfConversationIndexArray);
+    // getResponseTimeDataFromMarvin(processed.users, startOfConversationIndexArray);
     
     // prorocessed.individualProperty.forEach((element, index) => {
     //     // userMessages.name = element.individualProperty[index].name;
