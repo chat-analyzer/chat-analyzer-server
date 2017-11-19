@@ -27,7 +27,7 @@ function completeReqBody(reqBody) {
 		if(reqBody.debug)
 			reqBody.chat = fs.readFileSync(path.join(__dirname, "./public/unit_tests/test.txt"), "utf8");
 		else if(reqBody.chatId != undefined) {
-			reqBody.chat = JSON.parse(fs.readFileSync(path.join(__dirname, "./public/chats.json"))).find(c => c.id==reqBody.chatId).chat;
+			reqBody.chat = JSON.parse(fs.readFileSync(path.join(__dirname, "./chats.json"))).find(c => c.id==reqBody.chatId).chat;
 		}
 	}
 }
@@ -89,14 +89,14 @@ actionHandlers.registerChat = reqBody => {
 	return new Promise((resolve, reject) => {
 		let allChats = [];
 		try {
-			allChats = JSON.parse(fs.readFileSync(path.join(__dirname, "/public/chats.json"), "utf8"));
+			allChats = JSON.parse(fs.readFileSync(path.join(__dirname, "/chats.json"), "utf8"));
 		}
 		catch(e) {}
 		let chatIds = allChats.map(c => c.id);
 		let newChatId;
 		while(chatIds.indexOf(newChatId = guidGenerator()) != -1) {}
 		allChats.push({ id: newChatId, chat: reqBody.chat });
-		fs.writeFileSync(path.join(__dirname, "/public/chats.json"), JSON.stringify(allChats), "utf8");
+		fs.writeFileSync(path.join(__dirname, "/chats.json"), JSON.stringify(allChats), "utf8");
 		resolve(`http://chat-analyzer-server.azurewebsites.net/chat.html?id=${newChatId}`);
 	});
 };
