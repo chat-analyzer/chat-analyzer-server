@@ -11,7 +11,7 @@ All of this information is then displayed in beautiful graphs back in our Androi
 # How we built it
 Our Android app disguises as an email app to get the chat logs via the "send chat via email" feature of WhatsApp. The log's text file is then sent to an Azure instance, where we use NodeJS to take apart the messages and analyse them under a number of aspects.
 First, we calculate the absolute and relative number of messages and conversations started by each group member and analyze the days and times when each user is most active. Then, we use Azure to analyze the tone of certain groups of messages and thereby calculate sentiment scores for each member and conversation. These are then averaged to get a single 'positivity score' for each group member and the group as a whole.
-All of this data is then visualized beautifully and shown on a web view inside our app...
+The UI at the client is realized as a simple webpage and generates its content using mainly JavaScript.
 
 # Challenges we ran into
 
