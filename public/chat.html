@@ -41,29 +41,23 @@
             function copyArray(a) {
                 return JSON.parse(JSON.stringify(a));
             }
+
+            function shuffleExpandCopyArray(a, n) {
+                let b = copyArray(a);
+                shuffleArray(b);
+                for(let i = 0; i < n - 1; i++)
+                    b = b.concat(b);
+                return b;
+            }
             
             function initCharts(staticValues, intelligentValues) {
                 let charts = [
-                    {
-                        title: "Amount of messages",
-                        name: "amount-messages",
-                        canvas: getContext($("#amount-messages-chart"), true),
-                    },
-                    {
-                        title: "Most frequent times",
-                        name: "frequency",
-                        canvas: getContext($("#frequency-chart"), true),
-                    },
-                    {
-                        title: "Happiest users",
-                        name: "user-sentiments",
-                        canvas: getContext($("#user-sentiments-chart"), true),
-                    },
-                    {
-                        title: "Happiest weekdays",
-                        name: "weekday-sentiments",
-                        canvas: getContext($("#weekday-sentiments-chart"), true),
-                    }
+                    { canvas: getContext($("#amount-messages-chart"), true) },
+                    { canvas: getContext($("#frequency-chart"), true) },
+                    { canvas: getContext($("#user-sentiments-chart"), true) },
+                    { canvas: getContext($("#weekday-sentiments-chart"), true) },
+                    { canvas: getContext($("#conversation-starts-chart"), true) },
+                    { canvas: getContext($("#avg-response-time-chart"), true) }
                 ];
                 let chartBackgroundColors = [
                     "rgba(255,  38,  38, 0.4)",
@@ -78,21 +72,21 @@
 
                 
                 let chartData, chartLabels;
-                chartData = staticValues.users.map(user => user.posts);
-                chartLabels = staticValues.users.map((user, idx) => `${user.name} (${Math.round(chartData[idx]/staticValues.posts*1000)/10} %)`);
-                shuffleArray(chartBackgroundColors);
+                let messagesAmount = staticValues.users
+                    .map((user, idx) => ({label: `${user.name} (${Math.round(user.posts/staticValues.posts*1000)/10}%)`, data: user.posts }))
+                    .sort((x, y) => ((x.data < y.data) ? 1 : ((x.data > y.data) ? -1 : 0)));
                 charts[0].chart = new Chart(charts[0].canvas.ctx,
 				{
 					type: "doughnut",
 					data: {
 						datasets: [{
-							data: chartData,
-							backgroundColor: copyArray(chartBackgroundColors)
+							data: messagesAmount.map(m => m.data),
+							backgroundColor: shuffleExpandCopyArray(chartBackgroundColors, 10)
 						}],
-						labels: chartLabels
+						labels: messagesAmount.map(m => m.label)
 					},
 					options: {
-						responsive: true,
+						responsive: false,
 						tooltips: {
 							bodyFontSize: 10
 						},
@@ -124,7 +118,7 @@
 						labels: chartLabels
 					},
 					options: {
-						responsive: true,
+						responsive: false,
 						elements: {
                             point: {
                                 radius: 0
@@ -160,19 +154,18 @@
                 let chartTemp = intelligentValues.map(v => ({ user: v.user, average: v.average })).sort((x, y) => ((x.average < y.average) ? 1 : ((x.average > y.average) ? -1 : 0)));
                 chartData = chartTemp.map(v => Math.round(v.average*1000)/100);
                 chartLabels = chartTemp.map(v => v.user);
-                shuffleArray(chartBackgroundColors);
                 charts[2].chart = new Chart(charts[2].canvas.ctx,
 				{
 					type: "horizontalBar",
 					data: {
 						datasets: [{
 							data: chartData,
-							backgroundColor: copyArray(chartBackgroundColors)
+							backgroundColor: shuffleExpandCopyArray(chartBackgroundColors, 10)
 						}],
 						labels: chartLabels
 					},
 					options: {
-						responsive: true,
+						responsive: false,
 						tooltips: {
 							bodyFontSize: 10
 						},
@@ -218,7 +211,7 @@
 						labels: chartLabels
 					},
 					options: {
-						responsive: true,
+						responsive: false,
 						elements: {
                             point: {
                                 radius: 0
@@ -244,6 +237,72 @@
 					}
                 });
                 charts[3].chart.update();
+
+                let conversationStarts = staticValues.users
+                    .map((user, idx) => ({label: `${user.name} (${Math.round(user.conversationStarts/staticValues.conversationStarts*1000)/10}%)`, data: user.conversationStarts }))
+                    .sort((x, y) => ((x.data < y.data) ? 1 : ((x.data > y.data) ? -1 : 0)));
+                charts[4].chart = new Chart(charts[4].canvas.ctx,
+				{
+					type: "doughnut",
+					data: {
+						datasets: [{
+							data: conversationStarts.map(m => m.data),
+							backgroundColor: shuffleExpandCopyArray(chartBackgroundColors, 10)
+						}],
+						labels: conversationStarts.map(m => m.label)
+					},
+					options: {
+						responsive: false,
+						tooltips: {
+							bodyFontSize: 10
+						},
+						legend: {
+							display: true,
+							position: "bottom"
+						}
+					}
+				});
+                charts[4].chart.update();
+
+                staticValues.users.forEach(u => console.log(u.responseInfo));
+                let averageResponseTimes = staticValues.users.map(user => ({ label: user.name, data: Math.round(user.responseInfo.averageResponseTime/1000/6)/10 })).sort((x, y) => ((x.data < y.data) ? -1 : ((x.data > y.data) ? 1 : 0)));
+                console.log(averageResponseTimes);
+                charts[5].chart = new Chart(charts[5].canvas.ctx,
+				{
+					type: "bar",
+					data: {
+						datasets: [{
+							data: averageResponseTimes.map(m => m.data),
+							backgroundColor: shuffleExpandCopyArray(chartBackgroundColors, 10)
+						}],
+						labels: averageResponseTimes.map(m => m.label)
+					},
+					options: {
+						responsive: false,
+						tooltips: {
+							bodyFontSize: 10
+						},
+                        legend: { display: false },
+                        scales: {
+                            xAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: "Minutes"
+                                },
+                                ticks: {
+                                    beginAtZero: true,
+                                    autoSkip: false
+                                }
+                            }],
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }]
+                        }
+					}
+                });
+                charts[5].chart.update();
             }
 
             function getQueryVariable(variable) {       //from https://stackoverflow.com/a/827378
@@ -272,7 +331,8 @@
                     intelligentValues = JSON.parse(intelligentVals);
                     $("#placeholder-content").css("display", "none");
                     $(".actual-content").css("display", "flex");
-                    $("#subheading-container").html(`Users: ${staticValues.users.length}&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;Conversations: ${staticValues.conversationStarts}&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;Messages: ${staticValues.posts}`);
+                    let averageMood = Math.round(intelligentValues.map(o => o.average).reduce((sum, val) => sum + val, 0) / intelligentValues.length * 100) / 10;
+                    $("#subheading-container").html(`Users: ${staticValues.users.length}&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;Conversations: ${staticValues.conversationStarts}&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;Messages: ${staticValues.posts}&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;Average mood: ${averageMood}/10`);
                     initCharts(staticValues, intelligentValues);
                 });
             });
@@ -293,7 +353,7 @@
             </div>
             <div class="row actual-content">
                 <div class="col-md-4 diagram-container">
-                    <h2>Amount of messages</h2>
+                    <h2>Number of messages</h2>
                     <div class="diagram-canvas-container">
                         <canvas id="amount-messages-chart" class="diagram-canvas">Canvas not supported.</canvas>
                     </div>
@@ -314,6 +374,18 @@
                     <h2>Happiest weekdays</h2>
                     <div class="diagram-canvas-container">
                         <canvas id="weekday-sentiments-chart" class="diagram-canvas">Canvas not supported.</canvas>
+                    </div>
+                </div>
+                <div class="col-md-4 diagram-container">
+                    <h2>Conversation starts</h2>
+                    <div class="diagram-canvas-container">
+                        <canvas id="conversation-starts-chart" class="diagram-canvas">Canvas not supported.</canvas>
+                    </div>
+                </div>
+                <div class="col-md-4 diagram-container">
+                    <h2>Average response time</h2>
+                    <div class="diagram-canvas-container">
+                        <canvas id="avg-response-time-chart" class="diagram-canvas">Canvas not supported.</canvas>
                     </div>
                 </div>
             </div>

@@ -16,7 +16,7 @@
 				let testData = $.get(`../test.txt`).then(testData => {
 					return $.post(`/api`, {
 						action: "calculateStaticValues",
-						debug: true
+						chatId: "2959eac3ce042349"
 					}, processed => {
 						$("#result").html(processed);
 					});

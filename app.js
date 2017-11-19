@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
+const upload = require("multer")({ dest: "uploads/" });
 const customCalculations = require("./customCalculations.js");
 
 
@@ -106,6 +107,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post("/api", function(req, res) {
 	if(actionHandlers[req.body.action] != undefined)
 		actionHandlers[req.body.action](req.body).then(resStr => res.send(resStr==undefined ? "" : resStr));
+});
+app.post("/registerChat", upload.single("chat"), function(req, res) {
+	console.log("data received");
 });
 
 app.use(express.static(path.join(__dirname + "/public")));

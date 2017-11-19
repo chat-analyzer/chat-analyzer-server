@@ -147,6 +147,7 @@ exports.calculateStaticValues = function(messages) {
                 responses: currRespTimes.responses,
                 notResponded: currRespTimes.notResponded,
                 started: currRespTimes.started,
+                responseTimes: currRespTimes.responseTimes,
                 averageResponseTime: Math.round(currRespTimes.responseTimes / (currRespTimes.responses+currRespTimes.notResponded+currRespTimes.started))
             };
         });
