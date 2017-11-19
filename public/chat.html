@@ -246,13 +246,27 @@
                 charts[3].chart.update();
             }
 
+            function getQueryVariable(variable) {
+                let query = window.location.search.substring(1);
+                let vars = query.split("&");
+                for(let i = 0; i < vars.length; i++) {
+                    let pair = vars[i].split("=");
+                    if(decodeURIComponent(pair[0]) == variable)
+                        return decodeURIComponent(pair[1]);
+                }
+            }
+
             $(document).ready(function() {
                 let staticValues, intelligentValues;
-
-                $.post(`/api`, { action: "calculateStaticValues", debug: true })
+                let id = getQueryVariable("id");
+                let apiCallParams = id==undefined ? { debug: true } : { chatId: id };
+                
+                apiCallParams.action = "calculateStaticValues"
+                $.post(`/api`, apiCallParams)
 				.then(staticVals => {
                     staticValues = JSON.parse(staticVals);
-                    return $.post(`/api`, { action: "calculateIntelligentValues", debug: true });
+                    apiCallParams.action = "calculateIntelligentValues";
+                    return $.post(`/api`, apiCallParams);
                 })
                 .then(intelligentVals => {
                     intelligentValues = JSON.parse(intelligentVals);
