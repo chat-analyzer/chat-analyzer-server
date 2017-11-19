@@ -21,15 +21,20 @@ function guidGenerator() {		//from https://stackoverflow.com/a/6860916
     return (S4()+S4()+S4()+S4());
 }
 
-function reqBodyDebug(reqBody) {
-	if(reqBody.debug  &&  reqBody.chat == undefined)
-		reqBody.chat = fs.readFileSync(path.join(__dirname, "./public/unit_tests/test.txt"), "utf8");
+function completeReqBody(reqBody) {
+	if(reqBody.chat == undefined) {
+		if(reqBody.debug)
+			reqBody.chat = fs.readFileSync(path.join(__dirname, "./public/unit_tests/test.txt"), "utf8");
+		else if(reqBody.chatId != undefined) {
+			reqBody.chat = JSON.parse(fs.readFileSync(path.join(__dirname, "./public/chats.json"))).find(c => c.id==reqBody.chatId).chat;
+		}
+	}
 }
 
 let actionHandlers = {};
 actionHandlers.parseChat = (reqBody, dontJSONStringify) => {
 	return new Promise((resolve, reject) => {
-		reqBodyDebug(reqBody);
+		completeReqBody(reqBody);
 		var messagesRaw = reqBody.chat.split(/\n(?=\d\d\.\d\d\.\d\d, \d\d:\d\d - )/);
 		
 		let messagesParsed = messagesRaw.map(m => {
