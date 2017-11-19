@@ -20,6 +20,6 @@ let messagesParsed = messagesRaw.map(m => {
     return {timestamp: +timestamp, author: author, msg: msg};
 });
 
-//console.log(JSON.stringify(messagesParsed, null, 4));
+// console.log(JSON.stringify(messagesParsed, null, 4));
 
 module.exports = messagesParsed;
