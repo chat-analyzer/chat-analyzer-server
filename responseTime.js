@@ -3,13 +3,11 @@ const CONVERSATION_START_THRESHOLD_HOURS = require('./customCalculations.js')
                                             .CONVERSATION_START_THRESHOLD_HOURS
 
 var convStartIndices = [0]
-var users = []
+
 messages.forEach( (msg, i) => {
     if (i > 0) {
         var currentMillis = msg.timestamp
         var lastMillis = messages[i-1].timestamp
-
-        let diff = currentMillis - lastMillis;
 
         if ( (currentMillis - lastMillis) >=
                 1000 * 60 * 60 * CONVERSATION_START_THRESHOLD_HOURS) {
@@ -19,9 +17,10 @@ messages.forEach( (msg, i) => {
     }
 });
 
-users = [{'name': 'Sandesh'}, {'name': 'Marvin Heinzelmann'},
+var users = [{'name': 'Sandesh'}, {'name': 'Marvin Heinzelmann'},
             {'name': 'Daniel'}, {'name': 'Alina Weber'}]
-let result = []
+var result = []
+
 users.forEach(user => {   //put a default user object into result for all users
     result.push({
         'name': user.name,
@@ -30,47 +29,41 @@ users.forEach(user => {   //put a default user object into result for all users
         'started': 0,
         'responseTimes': 0  // sum of all the response times (in seconds)
     })
-})
+});
 
-convStartIndices.forEach((conversationStartMsgIndex, convIndex) => {  // loop over conversations
-    let responsesHappened = []    
-    var convStartMillis = messages[conversationStartMsgIndex].timestamp
-    var startUserName = messages[conversationStartMsgIndex].author
-    // author has participated
-    responsesHappened.push(startUserName)
-    let userResult = result.find(element => {
-        return element.name == startUserName;
-    });  
-    userResult.started++;
+convStartIndices.forEach((startMsgIndex, convIndex) => {  // loop over conversations
+    var convStartMillis = messages[startMsgIndex].timestamp
+    var startUserName = messages[startMsgIndex].author
 
     // loop over messages of the conversation
-    for (let currentMsgIndex = conversationStartMsgIndex + 1; currentMsgIndex < convStartIndices[convIndex + 1]; currentMsgIndex++) {
-        let msg = messages[currentMsgIndex]
+    for (let i = startMsgIndex; i < convStartIndices[convIndex + 1] 
+            || convIndex + 1 == convStartIndices.length; i++) {
+        
+        if (i >= messages.length) {
+            break
+        }
+        let msg = messages[i]
         let uname = msg.author
         let msgMillis  = msg.timestamp
-        // if the user hasn't replied yet, we'll increment it's values and push it to our responseArray
-        if (responsesHappened.indexOf(uname) == -1) {
-            let userResult = result.find(element => {
-                return element.name == uname;
-            });  
-            responsesHappened.push(uname);
-            userResult.responses++;
-            userResult.responseTimes += messages[currentMsgIndex].timestamp - convStartMillis;
-        }
         
-    }
-    users.forEach(user => {
-        if (responsesHappened.indexOf(user.name) == -1) {
-            let userResult = result.find(element => {
-                return element.name == user.name;
-            });            
-            userResult.notResponded++;
+        let userResult = result.find(elem => elem.name == uname)
+        if (userResult == undefined) {
+            continue
         }
-
-    });          
-
+        if (convIndex + 1 > userResult.responses + userResult.started + userResult.notResponded) {
+            if (uname == startUserName) {
+                userResult.started += 1
+                continue
+            }
+            userResult.responses += 1
+            userResult.responseTimes += msgMillis - convStartMillis
+        }    
+    }
+    result.forEach(userResult => {
+        if (convIndex + 1 > userResult.responses + userResult.started + userResult.notResponded) {
+            userResult.notResponded += 1
+        }
+    })
 })
 
-
-
-console.log(JSON.stringify(result, null, 2));
+console.log(result)

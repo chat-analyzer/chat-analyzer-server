@@ -4,8 +4,7 @@ const _ = require("lodash");
 var activityTime = require("./activityTime.js");
 
 
-
-const CONVERSATION_START_THRESHOLD_HOURS = 3; 
+const CONVERSATION_START_THRESHOLD_HOURS = 3;
 exports.CONVERSATION_START_THRESHOLD_HOURS = CONVERSATION_START_THRESHOLD_HOURS;
 
 exports.calculateStaticValues = function(messages) {
